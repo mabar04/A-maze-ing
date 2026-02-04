@@ -1,3 +1,4 @@
+import random
 
 def read_file(filename):
         config = {}
@@ -57,17 +58,49 @@ def print_maze_hex(maze):
             hex = convert_maze_col(maze[i][j])
             print(hex,end="") 
 
+visited = [
+        [False for _ in range(output["width"])]
+        for _ in range(output["height"])
+]
 
-def generate_perfect_maze(maze, start_row, start_col,height,width):
-    visited = [
-        [False for _ in range(width)]
-        for _ in range(height)
-    ]
+def check_neighbors(visited, start_row, start_col, height,width):
+    neighbors = []
+    if 0 <= start_row - 1 < height and not visited[start_row - 1][start_col]:
+        neighbors.append(("north", start_row - 1, start_col))
+    if 0 <= start_row + 1 < height and not visited[start_row + 1][start_col]:
+        neighbors.append(("south", start_row + 1, start_col))
+    if 0 <= start_col - 1 < width and not visited[start_row][start_col - 1]:
+        neighbors.append(("west", start_row, start_col - 1))
+    if 0 <= start_col + 1 < width and not visited[start_row][start_col + 1]:
+        neighbors.append(("east", start_row, start_col + 1))
+    return neighbors
+
+def generate_perfect_maze(maze,visited, start_row, start_col,height,width):
     visited[start_row][start_col] = True
+    neighbors = check_neighbors(visited, start_row, start_col, height,width)
+    random.shuffle(neighbors)
+    for neighbor in neighbors:
+        direction, new_row, new_col = neighbor
+        maze[start_row][start_col][direction] = False
+        if direction == "north":
+            maze[new_row][new_col]["south"] = False
+        elif direction == "south":
+            maze[new_row][new_col]["north"] = False
+        elif direction == "east":
+            maze[new_row][new_col]["west"] = False
+        elif direction == "west":
+            maze[new_row][new_col]["east"] = False
+        generate_perfect_maze(maze,visited,new_row,new_col,height,width)
 
 
 start_row,start_col = output["entry"]
-generate_perfect_maze(maze, start_row, start_col,output["height"],output["width"])
+end_row, end_col = output["exit"]
+print_maze_hex(maze)
+print()
+generate_perfect_maze(maze, visited, start_row, start_col,output["height"],output["width"])
+maze[start_row][start_col]["west"] = False
+maze[end_row][end_col]["east"] = False
+print_maze_hex(maze)
 # if output["perfect"]:
 #     generate_perfect_maze(maze, start_row, start_col)
 # else:
