@@ -1,6 +1,7 @@
 import random
+from maze_curses import run_curses
 
-# ---------------- Config Parsing ----------------
+# Parsing Part
 def read_file(filename):
     config = {}
     with open(filename, "r") as file:
@@ -16,7 +17,7 @@ def parse_config(config):
     width = int(config["WIDTH"])
     height = int(config["HEIGHT"])
 
-    entry_col, entry_row = map(int, config["ENTRY"].split(","))  # x = col, y = row
+    entry_col, entry_row = map(int, config["ENTRY"].split(","))
     exit_col, exit_row = map(int, config["EXIT"].split(","))
 
     output_file = config["OUTPUT_FILE"]
@@ -25,16 +26,12 @@ def parse_config(config):
     return {
         "width": width,
         "height": height,
-        "entry": (entry_row, entry_col),  # row, col
-        "exit": (exit_row, exit_col),     # row, col  <-- FIXED
+        "entry": (entry_row, entry_col),
+        "exit": (exit_row, exit_col),     
         "output": output_file,
         "perfect": perfect
     }
-
-raw = read_file("config.txt")
-output = parse_config(raw)
-
-# ---------------- Maze Initialization ----------------
+# first full maze
 def initial_maze(config):
     maze = [
         [
@@ -45,9 +42,8 @@ def initial_maze(config):
     ]
     return maze
 
-maze = initial_maze(output)
 
-# ---------------- Convert to Hex ----------------
+# Hex reading part
 def convert_maze_col(col):
     i = 0
     if col["north"]: i += 8
@@ -56,17 +52,26 @@ def convert_maze_col(col):
     if col["west"]: i += 1
     return hex(i)[2:]
 
+
 def print_maze_hex(maze):
     for row in maze:
         for col in row:
-            print(convert_maze_col(col), end="")
+            a = convert_maze_col(col)
+            if a == 'a':
+                print("A",end="")
+            elif a == 'b':
+                print("B",end="")
+            elif a == 'c':
+                print("C",end="")
+            elif a == 'd':
+                print("D",end="")
+            elif a == 'e':
+                print("E",end="")
+            elif a == "f":
+                print("F",end="")
+            else:
+                print(a, end="")
         print()
-
-# ---------------- DFS Perfect Maze ----------------
-visited = [
-    [False for _ in range(output["width"])]
-    for _ in range(output["height"])
-]
 
 def check_neighbors(visited, row, col, height, width):
     neighbors = []
@@ -80,13 +85,13 @@ def check_neighbors(visited, row, col, height, width):
         neighbors.append(("east", row, col + 1))
     return neighbors
 
+
 def generate_perfect_maze(maze, visited, row, col, height, width):
     visited[row][col] = True
     neighbors = check_neighbors(visited, row, col, height, width)
     random.shuffle(neighbors)
     for direction, n_row, n_col in neighbors:
         if not visited[n_row][n_col]:
-            # Remove walls between current cell and neighbor
             maze[row][col][direction] = False
             if direction == "north":
                 maze[n_row][n_col]["south"] = False
@@ -96,17 +101,54 @@ def generate_perfect_maze(maze, visited, row, col, height, width):
                 maze[n_row][n_col]["west"] = False
             elif direction == "west":
                 maze[n_row][n_col]["east"] = False
-            
-            visited[n_row][n_col] = True  # mark visited before recursion
             generate_perfect_maze(maze, visited, n_row, n_col, height, width)
 
-# ---------------- Run Maze Generation ----------------
+
+def generate_imperfect_maze(maze, height, width, chance=0.1):
+    directions = [
+        ("north", -1, 0, "south"),
+        ("south", 1, 0, "north"),
+        ("west", 0, -1, "east"),
+        ("east", 0, 1, "west")
+    ]
+
+    for row in range(height):
+        for col in range(width):
+
+            # random chance to break a wall
+            if random.random() < chance:
+                direction, dr, dc, opposite = random.choice(directions)
+
+                new_row = row + dr
+                new_col = col + dc
+
+                # check bounds
+                if 0 <= new_row < height and 0 <= new_col < width:
+                    # remove wall both sides
+                    maze[row][col][direction] = False
+                    maze[new_row][new_col][opposite] = False
+
+
+raw = read_file("config.txt")
+output = parse_config(raw)
+
+
+maze = initial_maze(output)
+
+# Perfect Maze
+visited = [
+    [False for _ in range(output["width"])]
+    for _ in range(output["height"])
+]
+
 start_row, start_col = output["entry"]
 end_row, end_col = output["exit"]
+if output["perfect"] == True:
+    generate_perfect_maze(maze, visited, start_row, start_col, output["height"], output["width"])
+else:
+    generate_perfect_maze(maze, visited, start_row, start_col, output["height"], output["width"])
+    generate_imperfect_maze(maze, output["height"], output["width"])
 
-generate_perfect_maze(maze, visited, start_row, start_col, output["height"], output["width"])
-
-# Open entry/exit walls
 maze[start_row][start_col]["west"] = False
 maze[end_row][end_col]["east"] = False
 
