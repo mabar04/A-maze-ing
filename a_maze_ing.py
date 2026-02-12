@@ -1,5 +1,5 @@
 import random
-from maze_curses import run_curses
+
 
 # Parsing Part
 def read_file(filename):
@@ -12,6 +12,7 @@ def read_file(filename):
             key, value = line.split("=", 1)
             config[key] = value
     return config
+
 
 def parse_config(config):
     width = int(config["WIDTH"])
@@ -27,17 +28,19 @@ def parse_config(config):
         "width": width,
         "height": height,
         "entry": (entry_row, entry_col),
-        "exit": (exit_row, exit_col),     
+        "exit": (exit_row, exit_col),
         "output": output_file,
         "perfect": perfect
     }
 # first full maze
+
+
 def initial_maze(config):
     maze = [
         [
-            {"north": True, "east": True, "south": True, "west": True} 
+            {"north": True, "east": True, "south": True, "west": True}
             for _ in range(config["width"])
-        ] 
+        ]
         for _ in range(config["height"])
     ]
     return maze
@@ -46,11 +49,15 @@ def initial_maze(config):
 # Hex reading part
 def convert_maze_col(col):
     i = 0
-    if col["north"]: i += 8
-    if col["east"]: i += 4
-    if col["south"]: i += 2
-    if col["west"]: i += 1
-    return hex(i)[2:]
+    if col["north"]:
+        i += 8
+    if col["east"]:
+        i += 4
+    if col["south"]:
+        i += 2
+    if col["west"]:
+        i += 1
+    return hex(i)[2]
 
 
 def print_maze_hex(maze):
@@ -58,20 +65,21 @@ def print_maze_hex(maze):
         for col in row:
             a = convert_maze_col(col)
             if a == 'a':
-                print("A",end="")
+                print("A", end="")
             elif a == 'b':
-                print("B",end="")
+                print("B", end="")
             elif a == 'c':
-                print("C",end="")
+                print("C", end="")
             elif a == 'd':
-                print("D",end="")
+                print("D", end="")
             elif a == 'e':
-                print("E",end="")
+                print("E", end="")
             elif a == "f":
-                print("F",end="")
+                print("F", end="")
             else:
                 print(a, end="")
         print()
+
 
 def check_neighbors(visited, row, col, height, width):
     neighbors = []
@@ -134,8 +142,6 @@ output = parse_config(raw)
 
 
 maze = initial_maze(output)
-
-# Perfect Maze
 visited = [
     [False for _ in range(output["width"])]
     for _ in range(output["height"])
@@ -143,10 +149,12 @@ visited = [
 
 start_row, start_col = output["entry"]
 end_row, end_col = output["exit"]
-if output["perfect"] == True:
-    generate_perfect_maze(maze, visited, start_row, start_col, output["height"], output["width"])
+if output["perfect"] is True:
+    generate_perfect_maze(maze, visited, start_row, start_col,
+                          output["height"], output["width"])
 else:
-    generate_perfect_maze(maze, visited, start_row, start_col, output["height"], output["width"])
+    generate_perfect_maze(maze, visited, start_row, start_col,
+                          output["height"], output["width"])
     generate_imperfect_maze(maze, output["height"], output["width"])
 
 maze[start_row][start_col]["west"] = False
