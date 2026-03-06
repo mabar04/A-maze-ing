@@ -19,4 +19,3 @@ class BFS:
                     visited.add((n_row, n_col))
                     parent[(n_row, n_col, direction)] = (row, col, direction)
                     queue.append((n_row, n_col))
-

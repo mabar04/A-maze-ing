@@ -37,7 +37,8 @@ class MazeGenerator:
                                                 parsed_Values["width"])
             elif self.algo == "Prime":
                 pass
-            hexa_display.print_maze_hex(maze, parsed_Values["output"])
+            hexa_display.print_maze_hex(maze, parsed_Values)
+            
         except ValueError as e:
             print(e)
 

@@ -15,8 +15,8 @@ class hexa_display:
         return hex(i)[2]
 
     @classmethod
-    def print_maze_hex(cls, maze, filename):
-        with open(filename, "w") as maze_file:
+    def print_maze_hex(cls, maze, parsed_values):
+        with open(parsed_values["output"], "w") as maze_file:
             for row in maze:
                 for col in row:
                     a = cls.convert_maze_col(col)
@@ -35,3 +35,7 @@ class hexa_display:
                     else:
                         maze_file.write(a)
                 maze_file.write("\n")
+            maze_file.write("\n")
+            maze_file.write(str(parsed_values["entry"]))
+            maze_file.write("\n")
+            maze_file.write(str(parsed_values["exit"]))
