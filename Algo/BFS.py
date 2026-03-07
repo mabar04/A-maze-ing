@@ -2,6 +2,18 @@ from collections import deque
 
 
 class BFS:
+    @classmethod
+    def get_neighbors(cls, maze, row, col, height, width):
+        neighbors = []
+        if row - 1 >= 0 and not maze[row][col]["north"]:
+            neighbors.append(("north", row - 1, col))
+        if row + 1 <= height - 1 and not maze[row][col]["south"]:
+            neighbors.append(("south", row + 1, col))
+        if col - 1 >= 0 and not maze[row][col]["west"]:
+            neighbors.append(("west", row, col - 1))
+        if col + 1 <= width - 1 and not maze[row][col]["east"]:
+            neighbors.append(("east", row, col + 1))
+        return neighbors
 
     @classmethod
     def find_path(cls, maze, entry, exit, height, width):

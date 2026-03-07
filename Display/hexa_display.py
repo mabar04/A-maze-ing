@@ -35,7 +35,7 @@ class hexa_display:
                     else:
                         maze_file.write(a)
                 maze_file.write("\n")
-            maze_file.write("\n")
-            maze_file.write(str(parsed_values["entry"]))
-            maze_file.write("\n")
-            maze_file.write(str(parsed_values["exit"]))
+            # maze_file.write("\n")
+            # maze_file.write(str(parsed_values["entry"]))
+            # maze_file.write("\n")
+            # maze_file.write(str(parsed_values["exit"]))

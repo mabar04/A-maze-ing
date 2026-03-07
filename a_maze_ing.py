@@ -1,6 +1,8 @@
 from Parsing_folder import Parsing, error_handeling
 from Algo import DFS
 from Display import hexa_display
+from Algo import Prime
+from Display import draw_42
 
 
 class MazeGenerator:
@@ -26,6 +28,8 @@ class MazeGenerator:
             error_handeling.check_added_keys(config)
             parsed_Values = Parsing.parse_config(config)
             maze = self.initial_maze(parsed_Values)
+            draw_42.draw_42(maze, parsed_Values["height"],
+                            parsed_Values["width"])
             if self.algo == "DFS":
                 if parsed_Values["perfect"]:
                     DFS.generate_perfect_maze(maze, 0, 0,
@@ -36,9 +40,15 @@ class MazeGenerator:
                                                 parsed_Values["height"],
                                                 parsed_Values["width"])
             elif self.algo == "Prime":
-                pass
+                if parsed_Values["perfect"]:
+                    Prime.generate_maze_perfect(maze, 0, 0,
+                                                parsed_Values["height"],
+                                                parsed_Values["width"])
+                elif not parsed_Values["perfect"]:
+                    Prime.generate_imperfect_maze(maze, 0, 0,
+                                                  parsed_Values["height"],
+                                                  parsed_Values["width"])
             hexa_display.print_maze_hex(maze, parsed_Values)
-            
         except ValueError as e:
             print(e)
 
